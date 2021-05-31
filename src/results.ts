@@ -44,7 +44,7 @@ export class PaginatedResult<T extends JsonObject> {
   private async listRequest(
     uri: string
   ): Promise<{ data: T[]; pagination: CoinbasePagination }> {
-    const listResponse = (await this.coinbase.apiRequest({
+    const listResponse = (await this.coinbase.request({
       method: 'GET',
       path: uri,
     })) as CoinbaseSuccessResponse;

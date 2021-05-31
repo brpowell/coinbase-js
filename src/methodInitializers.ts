@@ -23,7 +23,7 @@ export function createMethod<Result extends CoinbaseResultObject>(
   auth = true
 ): ApiMethod<Result> {
   return () =>
-    instance.apiRequest(
+    instance.request(
       {
         method: requestMethod,
         path,
@@ -42,7 +42,7 @@ export function createMethodWithArgs<
   auth = true
 ): ApiMethodWithArgs<Result, Arguments> {
   return (args: Arguments) =>
-    instance.apiRequest(
+    instance.request(
       {
         method: requestMethod,
         path,
@@ -62,7 +62,7 @@ export function createMethodWithOptionalArgs<
   auth = true
 ): ApiMethodWithOptionalArgs<Result, Arguments> {
   return (args?: Arguments): Promise<Result> =>
-    instance.apiRequest(
+    instance.request(
       {
         method: requestMethod,
         path,

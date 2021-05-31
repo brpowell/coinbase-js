@@ -46,6 +46,7 @@ export interface OAuthOptions {
     clientSecret: string;
     accessToken?: string;
     refreshToken: string;
+    refreshCallback?: (tokens: OAuthAccessTokenResult) => void | Promise<void>
   };
 }
 

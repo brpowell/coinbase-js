@@ -40,10 +40,6 @@ import {
 import { PaginatedResult } from "./results";
 import { JsonCollection, JsonObject } from "./webClient.types";
 
-type TokenRefreshSubscriber = (
-  tokens: OAuthAccessTokenResult
-) => void | Promise<any>;
-
 class RequestError extends Error {
   constructor(public status: number, public messages: string[] = []) {
     super();
@@ -53,8 +49,6 @@ class RequestError extends Error {
 const API_URL = "https://api.coinbase.com";
 
 export class Coinbase {
-  private tokenRefreshSubscribers: TokenRefreshSubscriber[] = [];
-
   constructor(public readonly options?: CoinbaseOptions) {}
 
   public readonly wallet = {
@@ -270,16 +264,7 @@ export class Coinbase {
     OAuthAccessTokenArguments
   >(this, "POST", "/oauth/token", false);
 
-  /**
-   * Subscribe to when an OAuth token refresh has occurred.
-   *
-   * @param subscriber Function to call with OAuth token result as the argument
-   */
-  public onTokenRefresh(subscriber: TokenRefreshSubscriber): void {
-    this.tokenRefreshSubscribers.push(subscriber);
-  }
-
-  public async apiRequest<T extends JsonCollection>(
+  public async request<T extends JsonCollection>(
     parameters: CoinbaseRequestArguments,
     auth = true
   ): Promise<CoinbaseResultObject> {
@@ -425,9 +410,8 @@ export class Coinbase {
         oauth.refreshToken = tokens.refresh_token;
         oauth.accessToken = tokens.access_token;
 
-        // notify token refresh subscribers - support async subscribers
-        for (const subscriber of this.tokenRefreshSubscribers) {
-          await subscriber(tokens);
+        if (oauth.refreshCallback) {
+          await oauth.refreshCallback(tokens);
         }
 
         return this.coinbaseRequest(parameters, {
